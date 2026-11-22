@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ASCII-Blumenstrauß</title>
+<style>
+:root{--bg:#0d0812;--fg:#ffd6ec;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);overflow:hidden}
+body{display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:Georgia,'Times New Roman',serif;touch-action:none}
+h1{font-weight:400;font-size:clamp(20px,5vw,34px);margin:0 0 6px;letter-spacing:.04em;background:linear-gradient(90deg,#ff7eb6,#ffd36e,#b388ff,#7ee7ff,#ff7eb6);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:g 8s linear infinite}
+@keyframes g{to{background-position:300% 0}}
+#n{outline:none;border-bottom:1px dashed #ff7eb688;padding:0 .2em}
+canvas{max-width:100%;cursor:grab}
+p{margin:6px 0 0;font-size:12px;opacity:.55;font-family:system-ui,sans-serif}
+</style></head><body>
+<h1>Für DICH mein ♥</h1>
+<canvas id="c"></canvas>
+<h2>Ich liebe dich Bebi!</h2>
+<p>Ziehen zum Drehen</p>
+<script>
+const cv=document.getElementById('c'),ctx=cv.getContext('2d');
+const FONT="ui-monospace,Menlo,Consolas,'Courier New',monospace";
+let cols,rows,cw,chh,fs,S,ASP,zb,ci,dpr=1;
+const G=[{cx:0,cy:0,cz:0,ph:0}];
+const OX=[],OY=[],OZ=[],NX=[],NY=[],NZ=[],GG=[],TT=[],HH=[],SS=[],LL=[];
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+const nrm=a=>{const m=Math.hypot(...a)||1;return a.map(v=>v/m)};
+function add(g,t,x,y,z,nx,ny,nz,h,s,l){const m=Math.hypot(nx,ny,nz)||1;OX.push(x);OY.push(y);OZ.push(z);NX.push(nx/m);NY.push(ny/m);NZ.push(nz/m);GG.push(g);TT.push(t);HH.push(h);SS.push(s);LL.push(l)}
+
+function flower(cx,cy,cz,a,R,hue,sat,lit,N){
+  a=nrm(a);let u=cross(a,[0,0,1]);if(Math.hypot(...u)<.2)u=cross(a,[1,0,0]);u=nrm(u);const v=cross(a,u);
+  const g=G.length;G.push({cx,cy,cz,ph:rnd(0,6.28)});
+  for(let i=0;i<N;i++){
+    const f=i/N,r0=R*Math.sqrt(f),p=i*2.39996,rr=r0*(1+.1*Math.cos(5*p+f*9)),c=Math.cos(p),s=Math.sin(p);
+    const x=rr*c,y=rr*s,h=.6*R*(rr/R)**2,k=1.1*rr/R;
+    add(g,0,u[0]*x+v[0]*y+a[0]*h,u[1]*x+v[1]*y+a[1]*h,u[2]*x+v[2]*y+a[2]*h,
+      a[0]-(u[0]*c+v[0]*s)*k,a[1]-(u[1]*c+v[1]*s)*k,a[2]-(u[2]*c+v[2]*s)*k,
+      hue+rnd(-5,5),sat,lit*(.7+.4*f)*(.88+.12*Math.sin(f*22)));
+  }
+  const tx=cx*.25,ty=-.7,tz=cz*.25;
+  for(let i=0;i<70;i++){const t=i/69;add(0,1,cx+(tx-cx)*t,cy-.2+(ty-cy+.2)*t,cz+(tz-cz)*t,0,0,-1,rnd(110,130),55,34)}
+}
+const PAL=[[335,80,62],[355,85,52],[22,90,58],[48,92,62],[280,60,64],[330,25,88],[210,75,64],[8,80,64]];
+let pi=0;const pal=()=>PAL[pi++%8];
+let q=pal();flower(0,1.7,0,[0,1,0],.95,q[0],q[1],q[2],1000);
+for(let k=0;k<6;k++){const a=k/6*6.283,c=Math.cos(a),s=Math.sin(a);q=pal();flower(c*1.35,1.05,s*1.35,[c*.6,1,s*.6],.85,q[0],q[1],q[2],900)}
+for(let k=0;k<7;k++){const a=(k+.5)/7*6.283,c=Math.cos(a),s=Math.sin(a);q=pal();flower(c*2.1,.3,s*2.1,[c*1.1,1,s*1.1],.8,q[0],q[1],q[2],800)}
+// Blätter
+for(let k=0;k<11;k++){
+  const th=k/11*6.283+rnd(-.2,.2),c=Math.cos(th),s=Math.sin(th),d=nrm([c,.5,s]),L=rnd(1.9,2.5),h=rnd(105,140);
+  for(let i=0;i<170;i++){const t=rnd(0,1),w=Math.sin(Math.PI*t)*.38*rnd(-1,1);
+    add(0,2,c*.5+d[0]*L*t-s*w,-.35+d[1]*L*t-.5*t*t,s*.5+d[2]*L*t+c*w,c*.3,1,s*.3,h,58,30+t*14)}
+}
+// Schleierkraut
+for(let k=0;k<45;k++){
+  const a=rnd(0,6.283),r=rnd(1,2.8),y=2.3-r*.65+rnd(-.3,.5),x=Math.cos(a)*r,z=Math.sin(a)*r;
+  for(let i=0;i<8;i++)add(0,3,x+rnd(-.12,.12),y+rnd(-.12,.12),z+rnd(-.12,.12),0,0,-1,rnd(300,360),20,88);
+}
+// Papiertüte + Band
+for(let i=0;i<6500;i++){
+  const s=Math.sqrt(Math.random()),p=rnd(0,6.283),r=2.1*s,y=-3.3+2.95*s+.15*Math.sin(6*p)*s;
+  const rib=s>.4&&s<.47,cream=s>.9;
+  add(0,rib?5:4,Math.cos(p)*r,y,Math.sin(p)*r,Math.cos(p),-.35,Math.sin(p),
+    rib?350:cream?40:330,rib?80:cream?50:60,(rib?50:cream?82:68)*(.86+.14*Math.cos(8*p)));
+}
+// Schleife
+for(const sg of[-1,1]){for(let i=0;i<220;i++){const a=rnd(0,6.283);
+  add(0,5,sg*(.55+.45*Math.cos(a)),-2.02+.3*Math.sin(a),-1.0,0,0,-1,350,85,50)}
+  for(let i=0;i<40;i++){const t=rnd(0,1);add(0,5,sg*.25*t+sg*.1,-2.05-t*.7,-1.0-.02*t,0,0,-1,350,85,45)}}
+
+const N=OX.length,BR=new Float32Array(G.length);
+const RAMP=[" .:-=+*#%@","'!|Il|",".,~+*&#%",".*+*",":;+xX%","=#@"];
+
+// Funken
+const SP=[];for(let i=0;i<80;i++)SP.push({x:Math.random(),y:Math.random(),v:rnd(.03,.12),ch:"*·+.♥✿"[i%6],h:rnd(0,360),ph:rnd(0,6.28)});
+
+function size(){
+  dpr=Math.min(devicePixelRatio||1,2);
+  const narrow=innerWidth<innerHeight*.85;
+  cols=narrow?70:90;rows=58;
+  const probe=document.createElement('canvas').getContext('2d');probe.font="10px "+FONT;
+  const rw=probe.measureText('M').width/10;
+  fs=Math.min(innerWidth*.98/(cols*rw),innerHeight*.78/(rows*1.05));
+  cw=rw*fs;chh=fs*1.05;ASP=cw/chh;
+  S=Math.min(rows/6.6,cols*ASP/5.8);
+  cv.width=Math.round(cols*cw*dpr);cv.height=Math.round(rows*chh*dpr);
+  cv.style.width=cols*cw+'px';cv.style.height=rows*chh+'px';
+  zb=new Float32Array(cols*rows);ci=new Int32Array(cols*rows);
+}
+addEventListener('resize',size);size();
+
+let yaw=0,drag=false,lx=0,vel=0;
+cv.addEventListener('pointerdown',e=>{drag=true;lx=e.clientX;cv.setPointerCapture(e.pointerId);cv.style.cursor='grabbing'});
+cv.addEventListener('pointermove',e=>{if(drag){vel=(e.clientX-lx)*.01;yaw+=vel;lx=e.clientX}});
+addEventListener('pointerup',()=>{drag=false;cv.style.cursor='grab'});
+
+let last=0;
+function frame(ts){
+  const t=ts/1000,dt=Math.min(.05,(ts-last)/1000||.016);last=ts;
+  if(!drag){yaw+=dt*.3;}
+  for(let g=0;g<G.length;g++)BR[g]=g?1+.07*Math.sin(t*2.2+G[g].ph):1;
+  zb.fill(1e9);ci.fill(-1);
+  const tz=Math.sin(t*.8)*.04,ctz=Math.cos(tz),stz=Math.sin(tz),cy=Math.cos(yaw),sy=Math.sin(yaw),pt=.14+.03*Math.sin(t*.5),cp=Math.cos(pt),sp=Math.sin(pt);
+  const D=10,L=nrm([Math.cos(t*.6)*.6,.6,-.7]);
+  for(let i=0;i<N;i++){
+    const g=GG[i],b=BR[g],Gp=G[g];
+    let x=Gp.cx+OX[i]*b,y=Gp.cy+OY[i]*b,z=Gp.cz+OZ[i]*b;
+    let x1=x*ctz-y*stz,y1=x*stz+y*ctz;
+    let x2=x1*cy+z*sy,z2=-x1*sy+z*cy;
+    const y3=y1*cp-z2*sp,z3=y1*sp+z2*cp;
+    const pr=D/(D+z3);
+    const col=Math.floor(cols/2+x2*S*pr/ASP),row=Math.floor(rows/2-(y3+.3)*S*pr);
+    if(col<0||col>=cols||row<0||row>=rows)continue;
+    const k=row*cols+col;if(z3>=zb[k])continue;
+    zb[k]=z3;ci[k]=i;
+  }
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.fillStyle="#0d0812";ctx.fillRect(0,0,cols*cw,rows*chh);
+  ctx.font=fs+"px "+FONT;ctx.textBaseline="top";
+  // Normalen nur für sichtbare Zellen drehen
+  for(let k=0;k<cols*rows;k++){
+    const col=k%cols,row=(k-col)/cols,i=ci[k];
+    if(i<0){
+      continue;
+    }
+    let nx=NX[i],ny=NY[i],nz=NZ[i];
+    let a=nx*ctz-ny*stz,bb=nx*stz+ny*ctz;
+    let c2=a*cy+nz*sy,d2=-a*sy+nz*cy;
+    const ny3=bb*cp-d2*sp,nz3=bb*sp+d2*cp;
+    let br=.25+.75*Math.abs(c2*L[0]+ny3*L[1]+nz3*L[2]);
+    br+=.12*Math.sin(row*.25-t*3);
+    br=Math.max(0,Math.min(1,br));
+    const ty=TT[i],r=RAMP[ty];
+    const ch=r[Math.min(r.length-1,Math.floor(br*r.length))];
+    if(ch===" ")continue;
+    const hue=HH[i]+(ty===0?10*Math.sin(t+G[GG[i]].ph):0);
+    const l=Math.min(88,LL[i]*(.45+.75*br)+(ty===3?0:0));
+    ctx.fillStyle=`hsl(${hue},${SS[i]}%,${l}%)`;
+    ctx.fillText(ch,col*cw,row*chh);
+  }
+  // Funken & Herzen (nur in freien Zellen)
+  for(const p of SP){
+    p.y-=p.v*dt;p.x+=Math.sin(t+p.ph)*dt*.02;
+    if(p.y<-.02){p.y=1.02;p.x=Math.random()}
+    const col=Math.floor(p.x*cols),row=Math.floor(p.y*rows);
+    if(col<0||col>=cols||row<0||row>=rows||ci[row*cols+col]>=0)continue;
+    ctx.globalAlpha=.35+.65*Math.abs(Math.sin(t*2+p.ph));
+    ctx.fillStyle=`hsl(${(p.h+t*30)%360},90%,72%)`;
+    ctx.fillText(p.ch,col*cw,row*chh);
+  }
+  ctx.globalAlpha=1;
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script></body></html>
